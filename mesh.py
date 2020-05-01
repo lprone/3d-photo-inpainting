@@ -1411,10 +1411,7 @@ def DL_inpaint_edge(mesh,
                     specific_edge_loc=None,
                     inpaint_iter=0):
 
-    if isinstance(config["gpu_ids"], int) and (config["gpu_ids"] >= 0):
-        device = config["gpu_ids"]
-    else:
-        device = "cpu"
+    device = "cpu"
 
     edge_map = np.zeros_like(depth)
     new_edge_ccs = [set() for _ in range(len(edge_ccs))]

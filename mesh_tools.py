@@ -187,10 +187,7 @@ def extrapolate(global_mesh,
     end_depth_maps = ((valid_line * input_edge_map) > 0) * input_depth
 
 
-    if isinstance(config["gpu_ids"], int) and (config["gpu_ids"] >= 0):
-        device = config["gpu_ids"]
-    else:
-        device = "cpu"
+    device = "cpu"
 
     valid_edge_ids = sorted(list(input_other_edge_with_id[(valid_line * input_edge_map) > 0]))
     valid_edge_ids = valid_edge_ids[1:] if (len(valid_edge_ids) > 0 and valid_edge_ids[0] == -1) else valid_edge_ids
@@ -326,7 +323,6 @@ def extrapolate(global_mesh,
     rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128,
                                            cuda=device)
 
-    # rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128, cuda=config['gpu_ids'])
     if config.get('gray_image') is True:
         rgb_output = rgb_output.mean(1, keepdim=True).repeat((1,3,1,1))
     rgb_output = ((rgb_output.squeeze().data.cpu().permute(1,2,0).numpy() * mask[..., None] + input_rgb) * 255).astype(np.uint8)
@@ -728,7 +724,7 @@ def edge_inpainting(edge_id, context_cc, erode_context_cc, mask_cc, edge_cc, ext
     tensor_edge_dict = convert2tensor(patch_edge_dict)
     if require_depth_edge(patch_edge_dict['edge'], patch_edge_dict['mask']) and inpaint_iter == 0:
         with torch.no_grad():
-            device = config["gpu_ids"] if isinstance(config["gpu_ids"], int) and config["gpu_ids"] >= 0 else "cpu"
+            device = "cpu"
             depth_edge_output = depth_edge_model.forward_3P(tensor_edge_dict['mask'],
                                                             tensor_edge_dict['context'],
                                                             tensor_edge_dict['rgb'],
@@ -763,7 +759,7 @@ def depth_inpainting(context_cc, extend_context_cc, erode_context_cc, mask_cc, m
     tensor_depth_dict = convert2tensor(patch_depth_dict)
     resize_mask = open_small_mask(tensor_depth_dict['mask'], tensor_depth_dict['context'], 3, 41)
     with torch.no_grad():
-        device = config["gpu_ids"] if isinstance(config["gpu_ids"], int) and config["gpu_ids"] >= 0 else "cpu"
+        device = "cpu"
         depth_output = depth_feat_model.forward_3P(resize_mask,
                                                     tensor_depth_dict['context'],
                                                     tensor_depth_dict['zero_mean_depth'],

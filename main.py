@@ -34,10 +34,7 @@ os.makedirs(config['depth_folder'], exist_ok=True)
 sample_list = get_MiDaS_samples(config['src_folder'], config['depth_folder'], config, config['specific'])
 normal_canvas, all_canvas = None, None
 
-if isinstance(config["gpu_ids"], int) and (config["gpu_ids"] >= 0):
-    device = config["gpu_ids"]
-else:
-    device = "cpu"
+device = "cpu"
 
 print(f"running on device {device}")
 
@@ -74,7 +71,7 @@ for idx in tqdm(range(len(sample_list))):
         print(f"Loading edge model at {time.time()}")
         depth_edge_model = Inpaint_Edge_Net(init_weights=True)
         depth_edge_weight = torch.load(config['depth_edge_model_ckpt'],
-                                       map_location=torch.device(device))
+                                       map_location='cpu')
         depth_edge_model.load_state_dict(depth_edge_weight)
         depth_edge_model = depth_edge_model.to(device)
         depth_edge_model.eval()
